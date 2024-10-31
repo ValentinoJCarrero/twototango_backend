@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ConfigModuleOptions } from './config/options';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
 	imports: [
@@ -21,10 +22,11 @@ import { join } from 'path';
 				database: configService.get<string>('database.name'),
 				entities: [join(__dirname, '**', '*.entity.{ts,js}')],
 				synchronize: true,
-				dropSchema: true,
+				dropSchema: false,
 				logging: false,
 			}),
 		}),
+		AuthModule
 	],
 	controllers: [AppController],
 	providers: [AppService],
