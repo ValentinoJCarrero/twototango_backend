@@ -5,12 +5,14 @@ import { User } from 'src/models/User.entity';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		@InjectRepository(User) private readonly userRepository: Repository<User>,
 		private readonly jwtService: JwtService,
+		private readonly configService: ConfigService,
 	) {}
 
 	async signUp(user: UserDto) {
@@ -29,28 +31,29 @@ export class AuthService {
 	}
 
 	async logIn(user: UserDto) {
-		const foundUser = await this.userRepository.findOne({ where: { email: user.email }, select: ['password'] });
+		const foundUser = await this.userRepository.findOne({ where: { email: user.email }, select: ['password', 'id'] });
 		if (!foundUser) throw new BadRequestException('Credenciales invalidas.');
 
 		if (!bcrypt.compareSync(user.password, foundUser.password)) throw new BadRequestException('Credenciales invalidas.');
 
-		const token = this.jwtService.sign({ userId: foundUser.id });
+		const token = await this.jwtService.signAsync({ sub: foundUser.id }, { secret: this.configService.get<string>('api.jwtSecret'), expiresIn: '360000' });
 
 		return token;
 	}
 
 	async validateToken(token: string) {
 		try {
-			const data = this.jwtService.verify(token);
+			const data = await this.jwtService.verify(token, { secret: this.configService.get<string>('api.jwtSecret'), complete: true });
 
-			const user = await this.userRepository.findOne({ where: { id: data.id } });
+			const user = await this.userRepository.findOneBy({ id: data.payload.sub });
 
 			return user;
 		} catch (e) {
+			console.log(e);
 			if (e instanceof TokenExpiredError) {
 				throw new UnauthorizedException('El token ha caducado');
 			}
-			return null;
+			throw new Error(e);
 		}
 	}
 }

@@ -6,6 +6,7 @@ import { ConfigModuleOptions } from './config/options';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AuthModule } from './modules/auth/auth.module';
+import { TaskModule } from './modules/task/task.module';
 
 @Module({
 	imports: [
@@ -26,7 +27,8 @@ import { AuthModule } from './modules/auth/auth.module';
 				logging: false,
 			}),
 		}),
-		AuthModule
+		AuthModule,
+		TaskModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

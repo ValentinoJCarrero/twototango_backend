@@ -12,9 +12,8 @@ import { AuthController } from './auth.controller';
 			inject: [ConfigService],
 			useFactory: (config: ConfigService) => ({
 				secret: config.get<string>('api.jwtSecret'),
-				signOptions: {
-					expiresIn: '3600',
-				},
+				signOptions: { expiresIn: '1hs' },
+				global: true
 			}),
 		}),
 		TypeOrmModule.forFeature([User]),

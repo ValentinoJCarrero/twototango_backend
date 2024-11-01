@@ -14,7 +14,7 @@ export class JwtAuthGuard implements CanActivate {
 			}
 			const token = authorization.replace(/bearer/gim, '').trim();
 
-			await this.authService.validateToken(token);
+			request.user = await this.authService.validateToken(token);
 
 			return true;
 		} catch (error) {
