@@ -36,7 +36,7 @@ export class AuthService {
 
 		if (!bcrypt.compareSync(user.password, foundUser.password)) throw new BadRequestException('Credenciales invalidas.');
 
-		const token = await this.jwtService.signAsync({ sub: foundUser.id }, { secret: this.configService.get<string>('api.jwtSecret'), expiresIn: '360000' });
+		const token = await this.jwtService.signAsync({ sub: foundUser.id }, { secret: this.configService.get<string>('api.jwtSecret'), expiresIn: '3600000000' });
 
 		return token;
 	}
